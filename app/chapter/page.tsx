@@ -5,6 +5,7 @@
 'use client'
 
 import { useSearchParams, useRouter } from 'next/navigation'
+import Image from 'next/image'
 import { useGetChapterDataQuery } from '@/lib/services/comicApi'
 import LoadingSpinner from '@/components/LoadingSpinner'
 import { FiChevronLeft, FiChevronRight, FiX } from 'react-icons/fi'
@@ -99,11 +100,11 @@ export default function ChapterReaderPage() {
   return (
     <div className="min-h-screen bg-black">
       {/* Header */}
-      <div className="fixed top-0 left-0 right-0 z-50 bg-black/80 backdrop-blur-sm">
+      <div className="fixed top-0 left-0 right-0 z-[100] bg-black/80 backdrop-blur-sm">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <button
             onClick={() => router.back()}
-            className="p-2 hover:bg-netflix-gray rounded transition-colors"
+            className="p-2 hover:bg-netflix-gray rounded transition-colors z-[101] relative"
             aria-label="Close"
           >
             <FiX className="w-6 h-6" />
@@ -123,11 +124,14 @@ export default function ChapterReaderPage() {
                 key={index}
                 className={`w-full max-w-4xl ${index === currentImageIndex ? 'block' : 'hidden'}`}
               >
-                <img
+                <Image
                   src={imageUrl}
                   alt={`Page ${index + 1}`}
+                  width={1200}
+                  height={1800}
                   className="w-full h-auto"
-                  loading={index <= currentImageIndex + 1 ? 'eager' : 'lazy'}
+                  priority={index <= currentImageIndex + 1}
+                  unoptimized
                   onError={(e) => {
                     // Fallback if image fails to load
                     const target = e.target as HTMLImageElement
@@ -148,8 +152,9 @@ export default function ChapterReaderPage() {
       <button
         onClick={() => setCurrentImageIndex(Math.max(0, currentImageIndex - 1))}
         disabled={currentImageIndex === 0}
-        className="fixed left-0 top-1/2 transform -translate-y-1/2 z-50 h-full w-1/4 md:w-1/6 flex items-center justify-start pl-4 hover:bg-black/20 transition-all disabled:opacity-0 disabled:cursor-default group"
+        className="fixed left-0 top-1/2 transform -translate-y-1/2 z-40 h-full w-1/4 md:w-1/6 flex items-center justify-start pl-4 hover:bg-black/20 transition-all disabled:opacity-0 disabled:cursor-default group pointer-events-auto"
         aria-label="Previous page"
+        style={{ pointerEvents: currentImageIndex === 0 ? 'none' : 'auto' }}
       >
         <div className="p-3 bg-netflix-gray/80 hover:bg-netflix-gray rounded-full transition-all group-hover:scale-110">
           <FiChevronLeft className="w-6 h-6 md:w-8 md:h-8" />
@@ -164,8 +169,9 @@ export default function ChapterReaderPage() {
           )
         }
         disabled={currentImageIndex === images.length - 1}
-        className="fixed right-0 top-1/2 transform -translate-y-1/2 z-50 h-full w-1/4 md:w-1/6 flex items-center justify-end pr-4 hover:bg-black/20 transition-all disabled:opacity-0 disabled:cursor-default group"
+        className="fixed right-0 top-1/2 transform -translate-y-1/2 z-40 h-full w-1/4 md:w-1/6 flex items-center justify-end pr-4 hover:bg-black/20 transition-all disabled:opacity-0 disabled:cursor-default group pointer-events-auto"
         aria-label="Next page"
+        style={{ pointerEvents: currentImageIndex === images.length - 1 ? 'none' : 'auto' }}
       >
         <div className="p-3 bg-netflix-gray/80 hover:bg-netflix-gray rounded-full transition-all group-hover:scale-110">
           <FiChevronRight className="w-6 h-6 md:w-8 md:h-8" />

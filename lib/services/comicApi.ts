@@ -58,6 +58,7 @@ export interface HomeResponse {
         currentPage: number
       }
     }
+    titlePage?: string
     APP_DOMAIN_CDN_IMAGE: string
   }
 }

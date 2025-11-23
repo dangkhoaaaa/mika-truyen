@@ -32,8 +32,8 @@ export default function CategoryPage() {
     )
   }
 
-  const { items, titlePage, params: pageParams, APP_DOMAIN_CDN_IMAGE } =
-    data.data
+  const { items, params: pageParams, APP_DOMAIN_CDN_IMAGE } = data.data
+  const titlePage = data.data.titlePage || 'Thể Loại'
   const totalPages = Math.ceil(
     pageParams.pagination.totalItems / pageParams.pagination.totalItemsPerPage
   )

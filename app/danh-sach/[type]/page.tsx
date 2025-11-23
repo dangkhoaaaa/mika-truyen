@@ -29,8 +29,8 @@ export default function ComicListPage() {
     )
   }
 
-  const { items, titlePage, params: pageParams, APP_DOMAIN_CDN_IMAGE } =
-    data.data
+  const { items, params: pageParams, APP_DOMAIN_CDN_IMAGE } = data.data
+  const titlePage = data.data.titlePage || 'Danh Sách Truyện'
   const totalPages = Math.ceil(
     pageParams.pagination.totalItems / pageParams.pagination.totalItemsPerPage
   )
