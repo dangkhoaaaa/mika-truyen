@@ -11,14 +11,7 @@ import { FiSearch, FiMenu, FiX } from 'react-icons/fi'
 import { useAppDispatch, useAppSelector } from '@/lib/hooks'
 import { toggleSearch, toggleMenu } from '@/lib/slices/uiSlice'
 
-export default function Header() {
-  const pathname = usePathname()
-  
-  // Hide header on chapter page - must be before other hooks
-  if (pathname === '/chapter') {
-    return null
-  }
-
+function HeaderContent() {
   const router = useRouter()
   const dispatch = useAppDispatch()
   const { isSearchOpen, isMenuOpen } = useAppSelector((state) => state.ui)
@@ -161,5 +154,16 @@ export default function Header() {
       </div>
     </header>
   )
+}
+
+export default function Header() {
+  const pathname = usePathname()
+  
+  // Hide header on chapter page
+  if (pathname === '/chapter') {
+    return null
+  }
+
+  return <HeaderContent />
 }
 
