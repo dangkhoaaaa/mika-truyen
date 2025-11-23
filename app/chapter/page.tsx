@@ -17,6 +17,7 @@ function ChapterReaderContent() {
   const chapterUrl = searchParams.get('url')
   const comicSlug = searchParams.get('comic')
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
+  const [showUI, setShowUI] = useState(true)
 
   // Get comic data to access chapter list
   const { data: comicData } = useGetComicBySlugQuery(comicSlug || '', {
@@ -49,6 +50,11 @@ function ChapterReaderContent() {
   )
   const prevChapter = currentChapterIndex > 0 ? sortedChapters[currentChapterIndex - 1] : null
   const nextChapter = currentChapterIndex < sortedChapters.length - 1 ? sortedChapters[currentChapterIndex + 1] : null
+
+  // Auto-hide UI when page changes
+  useEffect(() => {
+    setShowUI(false)
+  }, [currentImageIndex])
 
   // Keyboard navigation
   useEffect(() => {
@@ -115,31 +121,41 @@ function ChapterReaderContent() {
   }
 
   return (
-    <div className="min-h-screen bg-black">
+    <div className="min-h-screen bg-black overflow-hidden">
       {/* Close Button - Floating on top right, overlay on comic */}
       <button
-        onClick={() => router.back()}
-        className="fixed top-4 right-4 z-[100] p-3 bg-black/70 hover:bg-black/90 rounded-full transition-all backdrop-blur-sm shadow-lg"
+        onClick={(e) => {
+          e.stopPropagation()
+          router.back()
+        }}
+        className={`fixed top-4 right-4 z-[100] p-3 bg-black/70 hover:bg-black/90 rounded-full transition-all duration-300 backdrop-blur-sm shadow-lg ${
+          showUI ? 'opacity-100' : 'opacity-0 pointer-events-none'
+        }`}
         aria-label="Close"
       >
         <FiX className="w-6 h-6 text-white" />
       </button>
 
-      {/* Image Viewer */}
-      <div className="pt-4 pb-20">
-        <div className="flex flex-col items-center space-y-4">
+      {/* Image Viewer - Full screen, no scroll */}
+      <div 
+        className="fixed inset-0 w-full h-full overflow-hidden"
+        onClick={() => setShowUI(!showUI)}
+      >
+        <div className="w-full h-full flex items-center justify-center">
           {images.length > 0 ? (
             images.map((imageUrl: string, index: number) => (
               <div
                 key={index}
-                className={`w-full max-w-4xl ${index === currentImageIndex ? 'block' : 'hidden'}`}
+                className={`absolute inset-0 flex items-center justify-center cursor-pointer ${
+                  index === currentImageIndex ? 'block' : 'hidden'
+                }`}
               >
                 <Image
                   src={imageUrl}
                   alt={`Page ${index + 1}`}
                   width={1200}
                   height={1800}
-                  className="w-full h-auto"
+                  className="w-full h-full object-contain pointer-events-none"
                   priority={index <= currentImageIndex + 1}
                   unoptimized
                   onError={(e) => {
@@ -151,7 +167,7 @@ function ChapterReaderContent() {
               </div>
             ))
           ) : (
-            <div className="text-center text-gray-400 py-8">
+            <div className="text-center text-gray-400">
               <p>Không có ảnh nào trong chapter này</p>
             </div>
           )}
@@ -160,9 +176,14 @@ function ChapterReaderContent() {
 
       {/* Left Navigation Button - Previous */}
       <button
-        onClick={() => setCurrentImageIndex(Math.max(0, currentImageIndex - 1))}
+        onClick={(e) => {
+          e.stopPropagation()
+          setCurrentImageIndex(Math.max(0, currentImageIndex - 1))
+        }}
         disabled={currentImageIndex === 0}
-        className="fixed left-0 top-1/2 transform -translate-y-1/2 z-40 h-full w-1/4 md:w-1/6 flex items-center justify-start pl-4 hover:bg-black/20 transition-all disabled:opacity-0 disabled:cursor-default group pointer-events-auto"
+        className={`fixed left-0 top-1/2 transform -translate-y-1/2 z-40 h-full w-1/4 md:w-1/6 flex items-center justify-start pl-4 hover:bg-black/20 transition-all disabled:opacity-0 disabled:cursor-default group pointer-events-auto ${
+          showUI ? 'opacity-100' : 'opacity-0 pointer-events-none'
+        }`}
         aria-label="Previous page"
         style={{ pointerEvents: currentImageIndex === 0 ? 'none' : 'auto' }}
       >
@@ -173,13 +194,16 @@ function ChapterReaderContent() {
 
       {/* Right Navigation Button - Next */}
       <button
-        onClick={() =>
+        onClick={(e) => {
+          e.stopPropagation()
           setCurrentImageIndex(
             Math.min(images.length - 1, currentImageIndex + 1)
           )
-        }
+        }}
         disabled={currentImageIndex === images.length - 1}
-        className="fixed right-0 top-1/2 transform -translate-y-1/2 z-40 h-full w-1/4 md:w-1/6 flex items-center justify-end pr-4 hover:bg-black/20 transition-all disabled:opacity-0 disabled:cursor-default group pointer-events-auto"
+        className={`fixed right-0 top-1/2 transform -translate-y-1/2 z-40 h-full w-1/4 md:w-1/6 flex items-center justify-end pr-4 hover:bg-black/20 transition-all disabled:opacity-0 disabled:cursor-default group pointer-events-auto ${
+          showUI ? 'opacity-100' : 'opacity-0 pointer-events-none'
+        }`}
         aria-label="Next page"
         style={{ pointerEvents: currentImageIndex === images.length - 1 ? 'none' : 'auto' }}
       >
@@ -189,7 +213,9 @@ function ChapterReaderContent() {
       </button>
 
       {/* Page Counter - Bottom Center */}
-      <div className="fixed bottom-20 left-1/2 transform -translate-x-1/2 z-50 bg-netflix-gray/80 backdrop-blur-sm rounded-full px-4 py-2">
+      <div className={`fixed bottom-20 left-1/2 transform -translate-x-1/2 z-50 bg-netflix-gray/80 backdrop-blur-sm rounded-full px-4 py-2 transition-all ${
+        showUI ? 'opacity-100' : 'opacity-0 pointer-events-none'
+      }`}>
         <span className="text-sm">
           {currentImageIndex + 1} / {images.length}
         </span>
@@ -198,11 +224,14 @@ function ChapterReaderContent() {
       {/* Previous Chapter Button - Bottom Left */}
       {prevChapter && (
         <button
-          onClick={() => {
+          onClick={(e) => {
+            e.stopPropagation()
             router.push(`/chapter?url=${encodeURIComponent(prevChapter.chapter_api_data)}&comic=${comicSlug}`)
             setCurrentImageIndex(0)
           }}
-          className="fixed bottom-4 left-4 z-[100] px-4 py-2 bg-black/70 hover:bg-black/90 rounded-lg transition-all backdrop-blur-sm shadow-lg flex items-center space-x-2"
+          className={`fixed bottom-4 left-4 z-[100] px-4 py-2 bg-black/70 hover:bg-black/90 rounded-lg transition-all backdrop-blur-sm shadow-lg flex items-center space-x-2 ${
+            showUI ? 'opacity-100' : 'opacity-0 pointer-events-none'
+          }`}
           aria-label="Previous chapter"
         >
           <FiChevronLeft className="w-5 h-5 text-white" />
@@ -213,11 +242,14 @@ function ChapterReaderContent() {
       {/* Next Chapter Button - Bottom Right */}
       {nextChapter && (
         <button
-          onClick={() => {
+          onClick={(e) => {
+            e.stopPropagation()
             router.push(`/chapter?url=${encodeURIComponent(nextChapter.chapter_api_data)}&comic=${comicSlug}`)
             setCurrentImageIndex(0)
           }}
-          className="fixed bottom-4 right-4 z-[100] px-4 py-2 bg-black/70 hover:bg-black/90 rounded-lg transition-all backdrop-blur-sm shadow-lg flex items-center space-x-2"
+          className={`fixed bottom-4 right-4 z-[100] px-4 py-2 bg-black/70 hover:bg-black/90 rounded-lg transition-all backdrop-blur-sm shadow-lg flex items-center space-x-2 ${
+            showUI ? 'opacity-100' : 'opacity-0 pointer-events-none'
+          }`}
           aria-label="Next chapter"
         >
           <span className="text-white text-sm font-medium">Chap {nextChapter.chapter_name}</span>
