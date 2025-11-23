@@ -8,9 +8,9 @@ import { useSearchParams } from 'next/navigation'
 import { useSearchComicsQuery } from '@/lib/services/comicApi'
 import ComicCard from '@/components/ComicCard'
 import LoadingSpinner from '@/components/LoadingSpinner'
-import { useState } from 'react'
+import { useState, Suspense } from 'react'
 
-export default function SearchPage() {
+function SearchContent() {
   const searchParams = useSearchParams()
   const keyword = searchParams.get('keyword') || ''
   const [page, setPage] = useState(1)
@@ -40,9 +40,10 @@ export default function SearchPage() {
     )
   }
 
-  const { items, params } = data.data
+  const { items, params, APP_DOMAIN_CDN_IMAGE } = data.data
+  const itemsPerPage = params.pagination.totalItemsPerPage || 24
   const totalPages = Math.ceil(
-    params.pagination.totalItems / params.pagination.totalItemsPerPage
+    params.pagination.totalItems / itemsPerPage
   )
 
   return (
@@ -66,7 +67,7 @@ export default function SearchPage() {
                 <ComicCard
                   key={comic._id}
                   comic={comic}
-                  cdnUrl={data.data.APP_DOMAIN_CDN_IMAGE}
+                  cdnUrl={APP_DOMAIN_CDN_IMAGE || 'https://img.otruyenapi.com'}
                 />
               ))}
             </div>
@@ -97,6 +98,14 @@ export default function SearchPage() {
         )}
       </div>
     </div>
+  )
+}
+
+export default function SearchPage() {
+  return (
+    <Suspense fallback={<LoadingSpinner />}>
+      <SearchContent />
+    </Suspense>
   )
 }
 

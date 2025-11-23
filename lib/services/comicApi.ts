@@ -24,7 +24,8 @@ export interface Comic {
 }
 
 export interface Category {
-  id: string
+  _id: string
+  id?: string // Some APIs may use id instead of _id
   name: string
   slug: string
 }
@@ -93,9 +94,11 @@ export interface SearchResponse {
       keyword: string
       pagination: {
         totalItems: number
+        totalItemsPerPage?: number
         currentPage: number
       }
     }
+    APP_DOMAIN_CDN_IMAGE?: string
   }
 }
 

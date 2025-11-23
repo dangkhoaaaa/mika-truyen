@@ -9,9 +9,9 @@ import Image from 'next/image'
 import { useGetChapterDataQuery } from '@/lib/services/comicApi'
 import LoadingSpinner from '@/components/LoadingSpinner'
 import { FiChevronLeft, FiChevronRight, FiX } from 'react-icons/fi'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 
-export default function ChapterReaderPage() {
+function ChapterReaderContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
   const chapterUrl = searchParams.get('url')
@@ -185,6 +185,14 @@ export default function ChapterReaderPage() {
         </span>
       </div>
     </div>
+  )
+}
+
+export default function ChapterReaderPage() {
+  return (
+    <Suspense fallback={<LoadingSpinner />}>
+      <ChapterReaderContent />
+    </Suspense>
   )
 }
 
