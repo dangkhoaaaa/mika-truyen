@@ -6,7 +6,7 @@
 
 import { useSearchParams, useRouter } from 'next/navigation'
 import Image from 'next/image'
-import { useGetChapterDataQuery } from '@/lib/services/comicApi'
+import { useGetChapterDataQuery, useGetComicBySlugQuery } from '@/lib/services/comicApi'
 import LoadingSpinner from '@/components/LoadingSpinner'
 import { FiChevronLeft, FiChevronRight, FiX } from 'react-icons/fi'
 import { useState, useEffect, Suspense } from 'react'
@@ -15,7 +15,13 @@ function ChapterReaderContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
   const chapterUrl = searchParams.get('url')
+  const comicSlug = searchParams.get('comic')
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
+
+  // Get comic data to access chapter list
+  const { data: comicData } = useGetComicBySlugQuery(comicSlug || '', {
+    skip: !comicSlug,
+  })
 
   const { data, isLoading, error } = useGetChapterDataQuery(
     chapterUrl || '',
@@ -32,6 +38,17 @@ function ChapterReaderContent() {
             `${data.data.domain_cdn}/${data.data.item.chapter_path}/${img.image_file}`
         )
     : []
+
+  // Get current chapter info and find prev/next chapters
+  const currentChapterName = data?.data?.item?.chapter_name
+  const chapters = comicData?.data?.item?.chapters?.[0]?.server_data || []
+  const sortedChapters = [...chapters].reverse() // Reverse to get chronological order
+  
+  const currentChapterIndex = sortedChapters.findIndex(
+    (ch) => ch.chapter_api_data === chapterUrl
+  )
+  const prevChapter = currentChapterIndex > 0 ? sortedChapters[currentChapterIndex - 1] : null
+  const nextChapter = currentChapterIndex < sortedChapters.length - 1 ? sortedChapters[currentChapterIndex + 1] : null
 
   // Keyboard navigation
   useEffect(() => {
@@ -99,24 +116,17 @@ function ChapterReaderContent() {
 
   return (
     <div className="min-h-screen bg-black">
-      {/* Header */}
-      <div className="fixed top-0 left-0 right-0 z-[100] bg-black/80 backdrop-blur-sm">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <button
-            onClick={() => router.back()}
-            className="p-2 hover:bg-netflix-gray rounded transition-colors z-[101] relative"
-            aria-label="Close"
-          >
-            <FiX className="w-6 h-6" />
-          </button>
-          <p className="text-sm text-gray-300">
-            {currentImageIndex + 1} / {images.length}
-          </p>
-        </div>
-      </div>
+      {/* Close Button - Floating on top right, overlay on comic */}
+      <button
+        onClick={() => router.back()}
+        className="fixed top-4 right-4 z-[100] p-3 bg-black/70 hover:bg-black/90 rounded-full transition-all backdrop-blur-sm shadow-lg"
+        aria-label="Close"
+      >
+        <FiX className="w-6 h-6 text-white" />
+      </button>
 
       {/* Image Viewer */}
-      <div className="pt-16 pb-8">
+      <div className="pt-4 pb-20">
         <div className="flex flex-col items-center space-y-4">
           {images.length > 0 ? (
             images.map((imageUrl: string, index: number) => (
@@ -179,11 +189,41 @@ function ChapterReaderContent() {
       </button>
 
       {/* Page Counter - Bottom Center */}
-      <div className="fixed bottom-8 left-1/2 transform -translate-x-1/2 z-50 bg-netflix-gray/80 backdrop-blur-sm rounded-full px-4 py-2">
+      <div className="fixed bottom-20 left-1/2 transform -translate-x-1/2 z-50 bg-netflix-gray/80 backdrop-blur-sm rounded-full px-4 py-2">
         <span className="text-sm">
           {currentImageIndex + 1} / {images.length}
         </span>
       </div>
+
+      {/* Previous Chapter Button - Bottom Left */}
+      {prevChapter && (
+        <button
+          onClick={() => {
+            router.push(`/chapter?url=${encodeURIComponent(prevChapter.chapter_api_data)}&comic=${comicSlug}`)
+            setCurrentImageIndex(0)
+          }}
+          className="fixed bottom-4 left-4 z-[100] px-4 py-2 bg-black/70 hover:bg-black/90 rounded-lg transition-all backdrop-blur-sm shadow-lg flex items-center space-x-2"
+          aria-label="Previous chapter"
+        >
+          <FiChevronLeft className="w-5 h-5 text-white" />
+          <span className="text-white text-sm font-medium">Chap {prevChapter.chapter_name}</span>
+        </button>
+      )}
+
+      {/* Next Chapter Button - Bottom Right */}
+      {nextChapter && (
+        <button
+          onClick={() => {
+            router.push(`/chapter?url=${encodeURIComponent(nextChapter.chapter_api_data)}&comic=${comicSlug}`)
+            setCurrentImageIndex(0)
+          }}
+          className="fixed bottom-4 right-4 z-[100] px-4 py-2 bg-black/70 hover:bg-black/90 rounded-lg transition-all backdrop-blur-sm shadow-lg flex items-center space-x-2"
+          aria-label="Next chapter"
+        >
+          <span className="text-white text-sm font-medium">Chap {nextChapter.chapter_name}</span>
+          <FiChevronRight className="w-5 h-5 text-white" />
+        </button>
+      )}
     </div>
   )
 }

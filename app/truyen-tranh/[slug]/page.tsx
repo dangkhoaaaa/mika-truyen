@@ -124,6 +124,20 @@ export default function ComicDetailPage() {
                     dangerouslySetInnerHTML={{ __html: comic.content }}
                   />
                 )}
+
+                {/* Read from Start Button */}
+                {chapters.length > 0 && chapters[0]?.server_data?.length > 0 && (
+                  <div className="mt-6">
+                    <Link
+                      href={`/chapter?url=${encodeURIComponent(
+                        chapters[0].server_data[chapters[0].server_data.length - 1].chapter_api_data
+                      )}&comic=${slug}`}
+                      className="inline-flex items-center px-6 py-3 bg-netflix-red hover:bg-red-700 text-white font-semibold rounded-lg transition-colors"
+                    >
+                      Đọc Từ Đầu
+                    </Link>
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -132,7 +146,19 @@ export default function ComicDetailPage() {
 
       {/* Chapters Section */}
       <div className="container mx-auto px-4 lg:px-8 py-8">
-        <h2 className="text-2xl font-bold mb-6">Danh Sách Chapter</h2>
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-2xl font-bold">Danh Sách Chapter</h2>
+          {chapters.length > 0 && chapters[0]?.server_data?.length > 0 && (
+            <Link
+              href={`/chapter?url=${encodeURIComponent(
+                chapters[0].server_data[chapters[0].server_data.length - 1].chapter_api_data
+              )}&comic=${slug}`}
+              className="px-4 py-2 bg-netflix-red hover:bg-red-700 text-white font-medium rounded transition-colors"
+            >
+              Đọc Từ Đầu
+            </Link>
+          )}
+        </div>
 
         {chapters.length === 0 ? (
           <p className="text-gray-400">Chưa có chapter nào</p>
@@ -165,7 +191,7 @@ export default function ComicDetailPage() {
                 .map((chapter) => (
                   <Link
                     key={chapter.chapter_api_data}
-                    href={`/chapter?url=${encodeURIComponent(chapter.chapter_api_data)}`}
+                    href={`/chapter?url=${encodeURIComponent(chapter.chapter_api_data)}&comic=${slug}`}
                     className="p-3 bg-netflix-dark rounded hover:bg-netflix-gray transition-colors text-center"
                   >
                     <p className="text-sm font-medium">
