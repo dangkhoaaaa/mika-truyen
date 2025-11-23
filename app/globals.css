@@ -1,0 +1,43 @@
+/**
+ * Global styles and Tailwind CSS imports
+ */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-netflix-black text-white antialiased;
+  }
+}
+
+@layer utilities {
+  /* Custom scrollbar styling */
+  .custom-scrollbar::-webkit-scrollbar {
+    height: 8px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-track {
+    @apply bg-netflix-dark;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    @apply bg-netflix-gray rounded-full;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    @apply bg-gray-600;
+  }
+
+  /* Hide scrollbar for horizontal carousels */
+  .hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
