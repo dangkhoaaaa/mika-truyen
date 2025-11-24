@@ -8,7 +8,7 @@ import { useSearchParams, useRouter } from 'next/navigation'
 import Image from 'next/image'
 import { useGetChapterDataQuery, useGetComicBySlugQuery } from '@/lib/services/comicApi'
 import LoadingSpinner from '@/components/LoadingSpinner'
-import { FiChevronLeft, FiChevronRight, FiX } from 'react-icons/fi'
+import { FiChevronLeft, FiChevronRight, FiX, FiMinimize2, FiMaximize2 } from 'react-icons/fi'
 import { useState, useEffect, Suspense } from 'react'
 
 function ChapterReaderContent() {
@@ -18,6 +18,7 @@ function ChapterReaderContent() {
   const comicSlug = searchParams.get('comic')
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
   const [showUI, setShowUI] = useState(true)
+  const [isFullScale, setIsFullScale] = useState(true)
 
   // Get comic data to access chapter list
   const { data: comicData } = useGetComicBySlugQuery(comicSlug || '', {
@@ -122,6 +123,20 @@ function ChapterReaderContent() {
 
   return (
     <div className="min-h-screen bg-black overflow-hidden">
+      {/* Full Scale Toggle */}
+      <button
+        onClick={(e) => {
+          e.stopPropagation()
+          setIsFullScale((prev) => !prev)
+          setShowUI(true)
+        }}
+        className={`fixed top-4 left-4 z-[100] p-3 rounded-full bg-black/70 hover:bg-black/90 text-white transition-all duration-300 backdrop-blur-sm shadow-lg ${
+          showUI ? 'opacity-100' : 'opacity-0 pointer-events-none'
+        }`}
+        aria-label="Toggle scale"
+      >
+        {isFullScale ? <FiMinimize2 className="w-5 h-5" /> : <FiMaximize2 className="w-5 h-5" />}
+      </button>
       {/* Close Button - Floating on top right, overlay on comic */}
       <button
         onClick={(e) => {
@@ -136,17 +151,21 @@ function ChapterReaderContent() {
         <FiX className="w-6 h-6 text-white" />
       </button>
 
-      {/* Image Viewer - Full screen, no scroll */}
-      <div 
-        className="fixed inset-0 w-full h-full overflow-hidden"
+      {/* Image Viewer */}
+      <div
+        className={`fixed inset-0 w-full ${isFullScale ? 'h-full overflow-hidden' : 'min-h-full overflow-y-auto bg-black'}`}
         onClick={() => setShowUI(!showUI)}
       >
-        <div className="w-full h-full flex items-center justify-center">
+        <div
+          className={`w-full ${isFullScale ? 'h-full flex items-center justify-center' : 'flex flex-col items-center py-8 space-y-4'}`}
+        >
           {images.length > 0 ? (
             images.map((imageUrl: string, index: number) => (
               <div
                 key={index}
-                className={`absolute inset-0 flex items-center justify-center cursor-pointer ${
+                className={`${
+                  isFullScale ? 'absolute inset-0' : 'relative w-full'
+                } flex items-center justify-center cursor-pointer ${
                   index === currentImageIndex ? 'block' : 'hidden'
                 }`}
               >
@@ -155,7 +174,11 @@ function ChapterReaderContent() {
                   alt={`Page ${index + 1}`}
                   width={1200}
                   height={1800}
-                  className="w-full h-full object-contain pointer-events-none"
+                  className={
+                    isFullScale
+                      ? 'w-full h-full object-contain pointer-events-none'
+                      : 'w-full h-auto object-contain pointer-events-none'
+                  }
                   priority={index <= currentImageIndex + 1}
                   unoptimized
                   onError={(e) => {
@@ -221,25 +244,7 @@ function ChapterReaderContent() {
         </span>
       </div>
 
-      {/* Previous Chapter Button - Bottom Left */}
-      {prevChapter && (
-        <button
-          onClick={(e) => {
-            e.stopPropagation()
-            router.push(`/chapter?url=${encodeURIComponent(prevChapter.chapter_api_data)}&comic=${comicSlug}`)
-            setCurrentImageIndex(0)
-          }}
-          className={`fixed bottom-4 left-4 z-[100] px-4 py-2 bg-black/70 hover:bg-black/90 rounded-lg transition-all backdrop-blur-sm shadow-lg flex items-center space-x-2 ${
-            showUI ? 'opacity-100' : 'opacity-0 pointer-events-none'
-          }`}
-          aria-label="Previous chapter"
-        >
-          <FiChevronLeft className="w-5 h-5 text-white" />
-          <span className="text-white text-sm font-medium">Chap {prevChapter.chapter_name}</span>
-        </button>
-      )}
-
-      {/* Next Chapter Button - Bottom Right */}
+      {/* Next chapter Button - Bottom Left */}
       {nextChapter && (
         <button
           onClick={(e) => {
@@ -247,12 +252,30 @@ function ChapterReaderContent() {
             router.push(`/chapter?url=${encodeURIComponent(nextChapter.chapter_api_data)}&comic=${comicSlug}`)
             setCurrentImageIndex(0)
           }}
-          className={`fixed bottom-4 right-4 z-[100] px-4 py-2 bg-black/70 hover:bg-black/90 rounded-lg transition-all backdrop-blur-sm shadow-lg flex items-center space-x-2 ${
+          className={`fixed bottom-4 left-4 z-[100] px-4 py-2 bg-black/70 hover:bg-black/90 rounded-lg transition-all backdrop-blur-sm shadow-lg flex items-center space-x-2 ${
             showUI ? 'opacity-100' : 'opacity-0 pointer-events-none'
           }`}
           aria-label="Next chapter"
         >
+          <FiChevronLeft className="w-5 h-5 text-white" />
           <span className="text-white text-sm font-medium">Chap {nextChapter.chapter_name}</span>
+        </button>
+      )}
+
+      {/* Previous chapter Button - Bottom Right */}
+      {prevChapter && (
+        <button
+          onClick={(e) => {
+            e.stopPropagation()
+            router.push(`/chapter?url=${encodeURIComponent(prevChapter.chapter_api_data)}&comic=${comicSlug}`)
+            setCurrentImageIndex(0)
+          }}
+          className={`fixed bottom-4 right-4 z-[100] px-4 py-2 bg-black/70 hover:bg-black/90 rounded-lg transition-all backdrop-blur-sm shadow-lg flex items-center space-x-2 ${
+            showUI ? 'opacity-100' : 'opacity-0 pointer-events-none'
+          }`}
+          aria-label="Previous chapter"
+        >
+          <span className="text-white text-sm font-medium">Chap {prevChapter.chapter_name}</span>
           <FiChevronRight className="w-5 h-5 text-white" />
         </button>
       )}

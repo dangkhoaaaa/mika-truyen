@@ -128,3 +128,4 @@ This project is for educational purposes.
 - Design inspired by Netflix
 
 # mika-truyen
+

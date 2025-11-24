@@ -114,3 +114,4 @@ export default function HeroBanner({ comics, cdnUrl = 'https://img.otruyenapi.co
   )
 }
 
+

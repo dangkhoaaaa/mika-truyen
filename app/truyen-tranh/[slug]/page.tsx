@@ -4,7 +4,7 @@
  */
 'use client'
 
-import { useParams } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
 import { useGetComicBySlugQuery } from '@/lib/services/comicApi'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -14,6 +14,7 @@ import { useState } from 'react'
 export default function ComicDetailPage() {
   const params = useParams()
   const slug = params.slug as string
+  const router = useRouter()
   const { data, isLoading, error } = useGetComicBySlugQuery(slug)
   const [selectedServer, setSelectedServer] = useState(0)
 
@@ -41,6 +42,10 @@ export default function ComicDetailPage() {
   const cdnUrl = data.data.APP_DOMAIN_CDN_IMAGE
   const imageUrl = `${cdnUrl}/uploads/comics/${comic.thumb_url}`
   const chapters = comic.chapters || []
+  const defaultServer = chapters[0]
+  const firstChapter = defaultServer?.server_data?.[defaultServer.server_data.length - 1]
+  const latestChapter = defaultServer?.server_data?.[0]
+  const activeServer = chapters[selectedServer] || defaultServer
 
   return (
     <div className="min-h-screen pt-16">
@@ -125,17 +130,32 @@ export default function ComicDetailPage() {
                   />
                 )}
 
-                {/* Read from Start Button */}
-                {chapters.length > 0 && chapters[0]?.server_data?.length > 0 && (
-                  <div className="mt-6">
-                    <Link
-                      href={`/chapter?url=${encodeURIComponent(
-                        chapters[0].server_data[chapters[0].server_data.length - 1].chapter_api_data
-                      )}&comic=${slug}`}
-                      className="inline-flex items-center px-6 py-3 bg-netflix-red hover:bg-red-700 text-white font-semibold rounded-lg transition-colors"
-                    >
-                      Đọc Từ Đầu
-                    </Link>
+                {(firstChapter || latestChapter) && (
+                  <div className="mt-6 flex flex-wrap gap-4">
+                    {firstChapter && (
+                      <button
+                        onClick={() =>
+                          router.push(
+                            `/chapter?url=${encodeURIComponent(firstChapter.chapter_api_data)}&comic=${slug}`
+                          )
+                        }
+                        className="inline-flex items-center px-6 py-3 bg-netflix-red hover:bg-red-700 text-white font-semibold rounded-lg transition-colors"
+                      >
+                        Đọc Từ Đầu
+                      </button>
+                    )}
+                    {latestChapter && (
+                      <button
+                        onClick={() =>
+                          router.push(
+                            `/chapter?url=${encodeURIComponent(latestChapter.chapter_api_data)}&comic=${slug}`
+                          )
+                        }
+                        className="inline-flex items-center px-6 py-3 bg-netflix-gray/80 hover:bg-netflix-gray text-white font-semibold rounded-lg transition-colors border border-white/10"
+                      >
+                        Chap Mới Nhất
+                      </button>
+                    )}
                   </div>
                 )}
               </div>
@@ -146,17 +166,32 @@ export default function ComicDetailPage() {
 
       {/* Chapters Section */}
       <div className="container mx-auto px-4 lg:px-8 py-8">
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex flex-col gap-4 mb-6 md:flex-row md:items-center md:justify-between">
           <h2 className="text-2xl font-bold">Danh Sách Chapter</h2>
-          {chapters.length > 0 && chapters[0]?.server_data?.length > 0 && (
-            <Link
-              href={`/chapter?url=${encodeURIComponent(
-                chapters[0].server_data[chapters[0].server_data.length - 1].chapter_api_data
-              )}&comic=${slug}`}
-              className="px-4 py-2 bg-netflix-red hover:bg-red-700 text-white font-medium rounded transition-colors"
-            >
-              Đọc Từ Đầu
-            </Link>
+          {activeServer?.server_data && activeServer.server_data.length > 0 && (
+            <div className="flex items-center gap-3">
+              <span className="text-sm text-gray-300">Nhảy tới:</span>
+              <select
+                defaultValue=""
+                onChange={(e) => {
+                  if (!e.target.value) return
+                  router.push(`/chapter?url=${encodeURIComponent(e.target.value)}&comic=${slug}`)
+                }}
+                className="bg-netflix-dark border border-netflix-gray text-white text-sm rounded px-3 py-2 focus:outline-none focus:border-netflix-red min-w-[200px]"
+              >
+                <option value="" disabled>
+                  Chọn chapter
+                </option>
+                {activeServer.server_data
+                  .slice()
+                  .reverse()
+                  .map((chapter) => (
+                    <option key={chapter.chapter_api_data} value={chapter.chapter_api_data}>
+                      Chap {chapter.chapter_name}
+                    </option>
+                  ))}
+              </select>
+            </div>
           )}
         </div>
 

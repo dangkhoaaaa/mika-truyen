@@ -75,3 +75,4 @@ export default function ComicCard({ comic, cdnUrl = 'https://img.otruyenapi.com'
   )
 }
 
+
