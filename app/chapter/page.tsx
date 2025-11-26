@@ -9,7 +9,7 @@ import Image from 'next/image'
 import { useGetChapterDataQuery, useGetComicBySlugQuery } from '@/lib/services/comicApi'
 import LoadingSpinner from '@/components/LoadingSpinner'
 import { FiChevronLeft, FiChevronRight, FiX, FiMinimize2, FiMaximize2 } from 'react-icons/fi'
-import { useState, useEffect, Suspense } from 'react'
+import { useState, useEffect, Suspense, useRef } from 'react'
 
 type ReadingMode = 'single' | 'scroll'
 
@@ -22,6 +22,8 @@ function ChapterReaderContent() {
   const [showUI, setShowUI] = useState(true)
   const [isFullScale, setIsFullScale] = useState(true)
   const [readingMode, setReadingMode] = useState<ReadingMode>('single')
+  const touchStartX = useRef<number | null>(null)
+  const SWIPE_THRESHOLD = 60
 
   // Get comic data to access chapter list
   const { data: comicData } = useGetComicBySlugQuery(comicSlug || '', {
@@ -79,6 +81,23 @@ function ChapterReaderContent() {
     return () => window.removeEventListener('keydown', handleKeyPress)
   }, [currentImageIndex, images.length, router, readingMode])
 
+  const handleTouchStart = (e: React.TouchEvent) => {
+    if (readingMode !== 'single') return
+    touchStartX.current = e.touches[0].clientX
+  }
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (readingMode !== 'single') return
+    if (touchStartX.current === null) return
+    const deltaX = e.changedTouches[0].clientX - touchStartX.current
+    if (deltaX > SWIPE_THRESHOLD && currentImageIndex > 0) {
+      setCurrentImageIndex(currentImageIndex - 1)
+    } else if (deltaX < -SWIPE_THRESHOLD && currentImageIndex < images.length - 1) {
+      setCurrentImageIndex(currentImageIndex + 1)
+    }
+    touchStartX.current = null
+  }
+
   if (!chapterUrl) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -130,21 +149,21 @@ function ChapterReaderContent() {
   return (
     <div className="min-h-screen bg-black overflow-hidden">
       {/* Full Scale Toggle (top-left) */}
-      <button
-        onClick={(e) => {
-          e.stopPropagation()
-          if (readingMode !== 'single') return
-          setIsFullScale((prev) => !prev)
-          setShowUI(true)
-        }}
-        className={`fixed top-4 left-4 z-[100] p-3 rounded-full bg-black/70 hover:bg-black/90 text-white transition-all duration-300 backdrop-blur-sm shadow-lg ${
-          showUI ? 'opacity-100' : 'opacity-0 pointer-events-none'
-        } ${readingMode !== 'single' ? 'opacity-50 cursor-not-allowed' : ''}`}
-        aria-label="Toggle scale"
-        disabled={readingMode !== 'single'}
-      >
-        {isFullScale ? <FiMinimize2 className="w-5 h-5" /> : <FiMaximize2 className="w-5 h-5" />}
-      </button>
+      {readingMode === 'single' && (
+        <button
+          onClick={(e) => {
+            e.stopPropagation()
+            setIsFullScale((prev) => !prev)
+            setShowUI(true)
+          }}
+          className={`fixed top-4 left-4 z-[100] p-3 rounded-full bg-black/70 hover:bg-black/90 text-white transition-all duration-300 backdrop-blur-sm shadow-lg ${
+            showUI ? 'opacity-100' : 'opacity-0 pointer-events-none'
+          }`}
+          aria-label="Toggle scale"
+        >
+          {isFullScale ? <FiMinimize2 className="w-5 h-5" /> : <FiMaximize2 className="w-5 h-5" />}
+        </button>
+      )}
 
       {/* Reading mode toggle (top center) */}
       <div
@@ -161,7 +180,9 @@ function ChapterReaderContent() {
           className={`px-5 py-2 transition-colors ${
             readingMode === 'single' ? 'bg-netflix-red text-white' : 'text-gray-300 hover:text-white'
           }`}
-        >
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
+      >
           Từng trang
         </button>
         <button
@@ -241,7 +262,7 @@ function ChapterReaderContent() {
         </div>
       ) : (
         <div
-          className="fixed inset-0 overflow-y-auto bg-black px-4 md:px-8 pt-20 pb-24 space-y-6"
+          className="fixed inset-0 overflow-y-auto bg-black px-4 md:px-8 pt-20 pb-24"
           onClick={() => setShowUI(!showUI)}
         >
           {images.length > 0 ? (
@@ -252,7 +273,7 @@ function ChapterReaderContent() {
                   alt={`Page ${index + 1}`}
                   width={1200}
                   height={1800}
-                  className="w-full max-w-4xl h-auto object-contain rounded-lg shadow-2xl pointer-events-none"
+                  className="w-full max-w-4xl h-auto object-contain pointer-events-none select-none"
                   priority={index < 2}
                   unoptimized
                 />
@@ -274,13 +295,13 @@ function ChapterReaderContent() {
               setCurrentImageIndex(Math.max(0, currentImageIndex - 1))
             }}
             disabled={currentImageIndex === 0}
-            className={`fixed left-0 top-1/2 transform -translate-y-1/2 z-40 h-full w-1/4 md:w-1/6 flex items-center justify-start pl-4 hover:bg-black/20 transition-all disabled:opacity-0 disabled:cursor-default group pointer-events-auto ${
+            className={`fixed left-6 top-1/2 -translate-y-1/2 z-40 flex items-center justify-center hover:bg-black/30 transition-all disabled:opacity-0 disabled:cursor-default group pointer-events-auto rounded-full ${
               showUI ? 'opacity-100' : 'opacity-0 pointer-events-none'
             }`}
             aria-label="Previous page"
             style={{ pointerEvents: currentImageIndex === 0 ? 'none' : 'auto' }}
           >
-            <div className="p-3 bg-netflix-gray/80 hover:bg-netflix-gray rounded-full transition-all group-hover:scale-110">
+            <div className="p-3 bg-netflix-gray/80 hover:bg-netflix-gray rounded-full transition-all group-hover:scale-110 shadow-lg">
               <FiChevronLeft className="w-6 h-6 md:w-8 md:h-8" />
             </div>
           </button>
@@ -291,13 +312,13 @@ function ChapterReaderContent() {
               setCurrentImageIndex(Math.min(images.length - 1, currentImageIndex + 1))
             }}
             disabled={currentImageIndex === images.length - 1}
-            className={`fixed right-0 top-1/2 transform -translate-y-1/2 z-40 h-full w-1/4 md:w-1/6 flex items-center justify-end pr-4 hover:bg-black/20 transition-all disabled:opacity-0 disabled:cursor-default group pointer-events-auto ${
+            className={`fixed right-6 top-1/2 -translate-y-1/2 z-40 flex items-center justify-center hover:bg-black/30 transition-all disabled:opacity-0 disabled:cursor-default group pointer-events-auto rounded-full ${
               showUI ? 'opacity-100' : 'opacity-0 pointer-events-none'
             }`}
             aria-label="Next page"
             style={{ pointerEvents: currentImageIndex === images.length - 1 ? 'none' : 'auto' }}
           >
-            <div className="p-3 bg-netflix-gray/80 hover:bg-netflix-gray rounded-full transition-all group-hover:scale-110">
+            <div className="p-3 bg-netflix-gray/80 hover:bg-netflix-gray rounded-full transition-all group-hover:scale-110 shadow-lg">
               <FiChevronRight className="w-6 h-6 md:w-8 md:h-8" />
             </div>
           </button>
