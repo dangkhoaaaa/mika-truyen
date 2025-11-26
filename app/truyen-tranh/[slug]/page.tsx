@@ -43,8 +43,10 @@ export default function ComicDetailPage() {
   const imageUrl = `${cdnUrl}/uploads/comics/${comic.thumb_url}`
   const chapters = comic.chapters || []
   const defaultServer = chapters[0]
-  const firstChapter = defaultServer?.server_data?.[defaultServer.server_data.length - 1]
-  const latestChapter = defaultServer?.server_data?.[0]
+  const firstChapter = defaultServer?.server_data?.[0]
+  const latestChapter =
+    defaultServer?.server_data &&
+    defaultServer.server_data[defaultServer.server_data.length - 1]
   const activeServer = chapters[selectedServer] || defaultServer
 
   return (

@@ -23,6 +23,7 @@ function ChapterReaderContent() {
   const [isFullScale, setIsFullScale] = useState(true)
   const [readingMode, setReadingMode] = useState<ReadingMode>('single')
   const touchStartX = useRef<number | null>(null)
+  const mouseStartX = useRef<number | null>(null)
   const SWIPE_THRESHOLD = 60
 
   // Get comic data to access chapter list
@@ -97,6 +98,30 @@ function ChapterReaderContent() {
     }
     touchStartX.current = null
   }
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (readingMode !== 'single') return
+    mouseStartX.current = e.clientX
+  }
+
+  const handleMouseUp = (e: React.MouseEvent) => {
+    if (readingMode !== 'single') return
+    if (mouseStartX.current === null) return
+    const deltaX = e.clientX - mouseStartX.current
+    if (deltaX > SWIPE_THRESHOLD && currentImageIndex > 0) {
+      setCurrentImageIndex(currentImageIndex - 1)
+    } else if (deltaX < -SWIPE_THRESHOLD && currentImageIndex < images.length - 1) {
+      setCurrentImageIndex(currentImageIndex + 1)
+    }
+    mouseStartX.current = null
+  }
+
+  // Scroll to top when chapter, page or mode changes
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      window.scrollTo({ top: 0, behavior: 'auto' })
+    }
+  }, [chapterUrl, currentImageIndex, readingMode])
 
   if (!chapterUrl) {
     return (
@@ -180,9 +205,7 @@ function ChapterReaderContent() {
           className={`px-5 py-2 transition-colors ${
             readingMode === 'single' ? 'bg-netflix-red text-white' : 'text-gray-300 hover:text-white'
           }`}
-        onTouchStart={handleTouchStart}
-        onTouchEnd={handleTouchEnd}
-      >
+        >
           Từng trang
         </button>
         <button
@@ -218,6 +241,10 @@ function ChapterReaderContent() {
         <div
           className={`fixed inset-0 w-full ${isFullScale ? 'h-full overflow-hidden' : 'min-h-full overflow-y-auto bg-black'}`}
           onClick={() => setShowUI(!showUI)}
+          onTouchStart={handleTouchStart}
+          onTouchEnd={handleTouchEnd}
+          onMouseDown={handleMouseDown}
+          onMouseUp={handleMouseUp}
         >
           <div
             className={`w-full ${
