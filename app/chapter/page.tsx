@@ -25,6 +25,8 @@ function ChapterReaderContent() {
   const touchStartX = useRef<number | null>(null)
   const mouseStartX = useRef<number | null>(null)
   const SWIPE_THRESHOLD = 60
+  const scrollRef = useRef<HTMLDivElement | null>(null)
+  const singlePageScrollRef = useRef<HTMLDivElement | null>(null)
 
   // Get comic data to access chapter list
   const { data: comicData } = useGetComicBySlugQuery(comicSlug || '', {
@@ -118,7 +120,11 @@ function ChapterReaderContent() {
 
   // Scroll to top when chapter, page or mode changes
   useEffect(() => {
-    if (typeof window !== 'undefined') {
+    if (readingMode === 'scroll' && scrollRef.current) {
+      scrollRef.current.scrollTo({ top: 0, behavior: 'auto' })
+    } else if (readingMode === 'single' && singlePageScrollRef.current) {
+      singlePageScrollRef.current.scrollTo({ top: 0, behavior: 'auto' })
+    } else if (typeof window !== 'undefined') {
       window.scrollTo({ top: 0, behavior: 'auto' })
     }
   }, [chapterUrl, currentImageIndex, readingMode])
@@ -226,7 +232,11 @@ function ChapterReaderContent() {
       <button
         onClick={(e) => {
           e.stopPropagation()
-          router.back()
+          if (comicSlug) {
+            router.push(`/truyen-tranh/${comicSlug}`)
+          } else {
+            router.push('/')
+          }
         }}
         className={`fixed top-4 right-4 z-[100] p-3 bg-black/70 hover:bg-black/90 rounded-full transition-all duration-300 backdrop-blur-sm shadow-lg ${
           showUI ? 'opacity-100' : 'opacity-0 pointer-events-none'
@@ -239,6 +249,7 @@ function ChapterReaderContent() {
       {/* Image Viewer */}
       {readingMode === 'single' ? (
         <div
+          ref={singlePageScrollRef}
           className={`fixed inset-0 w-full ${isFullScale ? 'h-full overflow-hidden' : 'min-h-full overflow-y-auto bg-black'}`}
           onClick={() => setShowUI(!showUI)}
           onTouchStart={handleTouchStart}
@@ -289,6 +300,7 @@ function ChapterReaderContent() {
         </div>
       ) : (
         <div
+          ref={scrollRef}
           className="fixed inset-0 overflow-y-auto bg-black px-4 md:px-8 pt-20 pb-24"
           onClick={() => setShowUI(!showUI)}
         >
