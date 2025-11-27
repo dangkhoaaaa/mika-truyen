@@ -46,6 +46,7 @@ export default function HomePage() {
           title="Truyện Mới Cập Nhật"
           comics={newComics}
           cdnUrl={APP_DOMAIN_CDN_IMAGE}
+          useSwiper
         />
 
         {/* All Comics */}
