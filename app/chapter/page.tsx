@@ -10,6 +10,8 @@ import { useGetChapterDataQuery, useGetComicBySlugQuery } from '@/lib/services/c
 import LoadingSpinner from '@/components/LoadingSpinner'
 import { FiChevronLeft, FiChevronRight, FiX, FiMinimize2, FiMaximize2 } from 'react-icons/fi'
 import { useState, useEffect, Suspense, useRef } from 'react'
+import { watchHistoryService } from '@/lib/services/watchHistoryService'
+import { authService } from '@/lib/services/authService'
 
 type ReadingMode = 'single' | 'scroll'
 
@@ -59,6 +61,33 @@ function ChapterReaderContent() {
   )
   const prevChapter = currentChapterIndex > 0 ? sortedChapters[currentChapterIndex - 1] : null
   const nextChapter = currentChapterIndex < sortedChapters.length - 1 ? sortedChapters[currentChapterIndex + 1] : null
+
+  // Save watch history when chapter loads
+  useEffect(() => {
+    if (data?.data?.item && comicData?.data?.item && authService.isAuthenticated()) {
+      const saveWatchHistory = async () => {
+        try {
+          const comic = comicData.data.item;
+          const chapter = data.data.item;
+          const cdnUrl = comicData.data.APP_DOMAIN_CDN_IMAGE;
+          const imageUrl = `${cdnUrl}/uploads/comics/${comic.thumb_url}`;
+          
+          await watchHistoryService.createOrUpdate({
+            contentType: 'comic',
+            contentId: comic._id || comicSlug || '',
+            contentTitle: comic.name,
+            contentThumb: imageUrl,
+            chapterId: chapterUrl || '',
+            chapterName: chapter.chapter_name || currentChapterName || '',
+          });
+        } catch (error) {
+          console.error('Failed to save watch history:', error);
+        }
+      };
+      
+      saveWatchHistory();
+    }
+  }, [data, comicData, chapterUrl, comicSlug, currentChapterName]);
 
   // Auto-hide UI when page changes (single mode only)
   useEffect(() => {

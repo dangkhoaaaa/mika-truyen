@@ -9,7 +9,12 @@ import { useGetComicBySlugQuery } from '@/lib/services/comicApi'
 import Image from 'next/image'
 import Link from 'next/link'
 import LoadingSpinner from '@/components/LoadingSpinner'
-import { useState } from 'react'
+import FavoriteButton from '@/components/favorites/FavoriteButton'
+import CommentsSection from '@/components/comments/CommentsSection'
+import RatingSection from '@/components/ratings/RatingSection'
+import { useState, useEffect } from 'react'
+import { watchHistoryService } from '@/lib/services/watchHistoryService'
+import { authService } from '@/lib/services/authService'
 
 export default function ComicDetailPage() {
   const params = useParams()
@@ -132,34 +137,72 @@ export default function ComicDetailPage() {
                   />
                 )}
 
-                {(firstChapter || latestChapter) && (
-                  <div className="mt-6 flex flex-wrap gap-4">
-                    {firstChapter && (
-                      <button
-                        onClick={() =>
-                          router.push(
-                            `/chapter?url=${encodeURIComponent(firstChapter.chapter_api_data)}&comic=${slug}`
-                          )
-                        }
-                        className="inline-flex items-center px-6 py-3 bg-netflix-red hover:bg-red-700 text-white font-semibold rounded-lg transition-colors"
-                      >
-                        Đọc Từ Đầu
-                      </button>
-                    )}
-                    {latestChapter && (
-                      <button
-                        onClick={() =>
-                          router.push(
-                            `/chapter?url=${encodeURIComponent(latestChapter.chapter_api_data)}&comic=${slug}`
-                          )
-                        }
-                        className="inline-flex items-center px-6 py-3 bg-netflix-gray/80 hover:bg-netflix-gray text-white font-semibold rounded-lg transition-colors border border-white/10"
-                      >
-                        Chap Mới Nhất
-                      </button>
-                    )}
-                  </div>
-                )}
+                <div className="mt-6 flex flex-wrap gap-4 items-center">
+                  {(firstChapter || latestChapter) && (
+                    <>
+                      {firstChapter && (
+                        <button
+                          onClick={async () => {
+                            // Save watch history before navigating
+                            if (authService.isAuthenticated()) {
+                              try {
+                                await watchHistoryService.createOrUpdate({
+                                  contentType: 'comic',
+                                  contentId: comic._id || slug,
+                                  contentTitle: comic.name,
+                                  contentThumb: imageUrl,
+                                  chapterId: firstChapter.chapter_api_data,
+                                  chapterName: firstChapter.chapter_name,
+                                });
+                              } catch (error) {
+                                console.error('Failed to save watch history:', error);
+                              }
+                            }
+                            router.push(
+                              `/chapter?url=${encodeURIComponent(firstChapter.chapter_api_data)}&comic=${slug}`
+                            );
+                          }}
+                          className="inline-flex items-center px-6 py-3 bg-netflix-red hover:bg-red-700 text-white font-semibold rounded-lg transition-colors"
+                        >
+                          Đọc Từ Đầu
+                        </button>
+                      )}
+                      {latestChapter && (
+                        <button
+                          onClick={async () => {
+                            // Save watch history before navigating
+                            if (authService.isAuthenticated()) {
+                              try {
+                                await watchHistoryService.createOrUpdate({
+                                  contentType: 'comic',
+                                  contentId: comic._id || slug,
+                                  contentTitle: comic.name,
+                                  contentThumb: imageUrl,
+                                  chapterId: latestChapter.chapter_api_data,
+                                  chapterName: latestChapter.chapter_name,
+                                });
+                              } catch (error) {
+                                console.error('Failed to save watch history:', error);
+                              }
+                            }
+                            router.push(
+                              `/chapter?url=${encodeURIComponent(latestChapter.chapter_api_data)}&comic=${slug}`
+                            );
+                          }}
+                          className="inline-flex items-center px-6 py-3 bg-netflix-gray/80 hover:bg-netflix-gray text-white font-semibold rounded-lg transition-colors border border-white/10"
+                        >
+                          Chap Mới Nhất
+                        </button>
+                      )}
+                    </>
+                  )}
+                  <FavoriteButton
+                    contentId={comic._id || slug}
+                    contentTitle={comic.name}
+                    contentThumb={imageUrl}
+                    contentSlug={slug}
+                  />
+                </div>
               </div>
             </div>
           </div>
@@ -229,6 +272,23 @@ export default function ComicDetailPage() {
                   <Link
                     key={chapter.chapter_api_data}
                     href={`/chapter?url=${encodeURIComponent(chapter.chapter_api_data)}&comic=${slug}`}
+                    onClick={async () => {
+                      // Save watch history when clicking chapter
+                      if (authService.isAuthenticated()) {
+                        try {
+                          await watchHistoryService.createOrUpdate({
+                            contentType: 'comic',
+                            contentId: comic._id || slug,
+                            contentTitle: comic.name,
+                            contentThumb: imageUrl,
+                            chapterId: chapter.chapter_api_data,
+                            chapterName: chapter.chapter_name,
+                          });
+                        } catch (error) {
+                          console.error('Failed to save watch history:', error);
+                        }
+                      }
+                    }}
                     className="p-3 bg-netflix-dark rounded hover:bg-netflix-gray transition-colors text-center"
                   >
                     <p className="text-sm font-medium">
@@ -244,6 +304,16 @@ export default function ComicDetailPage() {
             </div>
           </>
         )}
+      </div>
+
+      {/* Ratings Section */}
+      <div className="container mx-auto px-4 lg:px-8">
+        <RatingSection contentType="comic" contentId={comic._id || slug} />
+      </div>
+
+      {/* Comments Section */}
+      <div className="container mx-auto px-4 lg:px-8">
+        <CommentsSection contentType="comic" contentId={comic._id || slug} />
       </div>
     </div>
   )

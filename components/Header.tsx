@@ -10,6 +10,10 @@ import { useRouter, usePathname } from 'next/navigation'
 import { FiSearch, FiMenu, FiX } from 'react-icons/fi'
 import { useAppDispatch, useAppSelector } from '@/lib/hooks'
 import { toggleSearch, toggleMenu } from '@/lib/slices/uiSlice'
+import { authService } from '@/lib/services/authService'
+import LoginModal from '@/components/auth/LoginModal'
+import RegisterModal from '@/components/auth/RegisterModal'
+import UserMenu from '@/components/user/UserMenu'
 
 function HeaderContent() {
   const router = useRouter()
@@ -17,14 +21,26 @@ function HeaderContent() {
   const { isSearchOpen, isMenuOpen } = useAppSelector((state) => state.ui)
   const [scrolled, setScrolled] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
+  const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const [showLogin, setShowLogin] = useState(false)
+  const [showRegister, setShowRegister] = useState(false)
 
   // Handle scroll effect for header background
   useEffect(() => {
+    setIsAuthenticated(authService.isAuthenticated());
     const handleScroll = () => {
       setScrolled(window.scrollY > 0)
     }
     window.addEventListener('scroll', handleScroll)
     return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
+
+  useEffect(() => {
+    // Listen for auth changes
+    const checkAuth = () => setIsAuthenticated(authService.isAuthenticated());
+    checkAuth();
+    const interval = setInterval(checkAuth, 1000);
+    return () => clearInterval(interval);
   }, [])
 
   // Handle search submission
@@ -85,6 +101,26 @@ function HeaderContent() {
             >
               <FiSearch className="w-5 h-5" />
             </button>
+
+            {/* Auth Buttons / User Menu */}
+            {isAuthenticated ? (
+              <UserMenu />
+            ) : (
+              <div className="hidden md:flex items-center gap-3">
+                <button
+                  onClick={() => setShowLogin(true)}
+                  className="text-white hover:text-gray-300 transition text-sm"
+                >
+                  Đăng nhập
+                </button>
+                <button
+                  onClick={() => setShowRegister(true)}
+                  className="bg-[#e50914] text-white px-4 py-2 rounded hover:bg-[#f40612] transition text-sm"
+                >
+                  Đăng ký
+                </button>
+              </div>
+            )}
 
             {/* Mobile Menu Button */}
             <button
@@ -152,6 +188,24 @@ function HeaderContent() {
           </div>
         )}
       </div>
+
+      {/* Auth Modals */}
+      <LoginModal
+        isOpen={showLogin}
+        onClose={() => setShowLogin(false)}
+        onSwitchToRegister={() => {
+          setShowLogin(false);
+          setShowRegister(true);
+        }}
+      />
+      <RegisterModal
+        isOpen={showRegister}
+        onClose={() => setShowRegister(false)}
+        onSwitchToLogin={() => {
+          setShowRegister(false);
+          setShowLogin(true);
+        }}
+      />
     </header>
   )
 }
