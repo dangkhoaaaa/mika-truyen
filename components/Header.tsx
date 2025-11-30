@@ -104,7 +104,9 @@ function HeaderContent() {
 
             {/* Auth Buttons / User Menu */}
             {isAuthenticated ? (
-              <UserMenu />
+              <div className="hidden md:flex items-center gap-3">
+                <UserMenu />
+              </div>
             ) : (
               <div className="hidden md:flex items-center gap-3">
                 <button
@@ -185,6 +187,32 @@ function HeaderContent() {
                 Thể Loại
               </Link>
             </nav>
+            <div className="mt-4 pt-4 border-t border-netflix-gray">
+              {isAuthenticated ? (
+                <UserMenu />
+              ) : (
+                <div className="flex flex-col space-y-3">
+                  <button
+                    onClick={() => {
+                      setShowLogin(true);
+                      dispatch(toggleMenu());
+                    }}
+                    className="w-full text-left bg-white text-black py-2 px-3 rounded hover:bg-gray-200 transition text-sm"
+                  >
+                    Đăng nhập
+                  </button>
+                  <button
+                    onClick={() => {
+                      setShowRegister(true);
+                      dispatch(toggleMenu());
+                    }}
+                    className="w-full text-left bg-[#e50914] text-white px-3 py-2 rounded hover:bg-[#f40612] transition text-sm"
+                  >
+                    Đăng ký
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
         )}
       </div>
