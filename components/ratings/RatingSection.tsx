@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { ratingsService, ContentRating } from '@/lib/services/ratingsService';
 import { authService } from '@/lib/services/authService';
 import { FiStar } from 'react-icons/fi';
@@ -17,12 +17,7 @@ export default function RatingSection({ contentType, contentId }: RatingSectionP
   const [loading, setLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-  useEffect(() => {
-    setIsAuthenticated(authService.isAuthenticated());
-    loadRatings();
-  }, [contentId]);
-
-  const loadRatings = async () => {
+  const loadRatings = useCallback(async () => {
     try {
       setLoading(true);
       const [contentRatingResponse, userRatingResponse] = await Promise.all([
@@ -39,7 +34,12 @@ export default function RatingSection({ contentType, contentId }: RatingSectionP
     } finally {
       setLoading(false);
     }
-  };
+  }, [isAuthenticated, contentType, contentId]);
+
+  useEffect(() => {
+    setIsAuthenticated(authService.isAuthenticated());
+    loadRatings();
+  }, [contentId, loadRatings]);
 
   const handleRate = async (stars: number) => {
     if (!isAuthenticated) {

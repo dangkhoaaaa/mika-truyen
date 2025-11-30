@@ -23,6 +23,7 @@ export interface WatchHistory {
   contentId: string;
   contentTitle: string;
   contentThumb: string;
+  contentSlug?: string;
   episodeId?: string;
   episodeName?: string;
   chapterId?: string;
@@ -100,5 +101,37 @@ export const watchHistoryService = {
       }
       throw error;
     }
+  },
+
+  /**
+   * Update watch history
+   */
+  updateWatchHistory: async (
+    contentId: string,
+    data: Partial<CreateWatchHistoryDto>,
+  ): Promise<WatchHistory> => {
+    const authApi = createAuthApi();
+    const response = await authApi.put<WatchHistory>(
+      `${API_BASE_URL}/watch-history/${contentId}`,
+      data,
+    );
+    return response.data;
+  },
+
+  /**
+   * Delete watch history
+   */
+  deleteWatchHistory: async (contentId: string): Promise<void> => {
+    const authApi = createAuthApi();
+    await authApi.delete(`${API_BASE_URL}/watch-history/${contentId}`);
+  },
+
+  /**
+   * Clear all watch history
+   */
+  clearWatchHistory: async (contentType?: 'movie' | 'comic'): Promise<void> => {
+    const authApi = createAuthApi();
+    const params = contentType ? `?contentType=${contentType}` : '';
+    await authApi.delete(`${API_BASE_URL}/watch-history${params}`);
   },
 };

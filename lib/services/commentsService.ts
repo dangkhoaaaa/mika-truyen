@@ -97,4 +97,12 @@ export const commentsService = {
     );
     return response.data;
   },
+
+  /**
+   * Toggle like on a comment
+   */
+  toggleLike: async (commentId: string, isLiking: boolean): Promise<void> => {
+    const authApi = createAuthApi();
+    await authApi.post(`${API_BASE_URL}/comments/${commentId}/toggle-like`, { isLiking });
+  },
 };

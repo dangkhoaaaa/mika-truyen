@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { favoritesService } from '@/lib/services/favoritesService';
 import { authService } from '@/lib/services/authService';
 import { FiHeart } from 'react-icons/fi';
@@ -22,21 +22,21 @@ export default function FavoriteButton({
   const [loading, setLoading] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-  useEffect(() => {
-    setIsAuthenticated(authService.isAuthenticated());
-    if (isAuthenticated) {
-      checkFavorite();
-    }
-  }, [contentId, isAuthenticated]);
-
-  const checkFavorite = async () => {
+  const checkFavorite = useCallback(async () => {
     try {
       const favorite = await favoritesService.checkFavorite(contentId);
       setIsFavorite(favorite);
     } catch (error) {
       console.error('Failed to check favorite:', error);
     }
-  };
+  }, [contentId]);
+
+  useEffect(() => {
+    setIsAuthenticated(authService.isAuthenticated());
+    if (isAuthenticated) {
+      checkFavorite();
+    }
+  }, [contentId, isAuthenticated, checkFavorite]);
 
   const handleToggle = async () => {
     if (!isAuthenticated) {

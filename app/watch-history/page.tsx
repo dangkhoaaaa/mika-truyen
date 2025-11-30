@@ -19,7 +19,7 @@ export default function WatchHistoryPage() {
       return;
     }
     loadHistory();
-  }, []);
+  }, [router]);
 
   const loadHistory = async () => {
     try {

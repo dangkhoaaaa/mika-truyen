@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { commentsService, Comment } from '@/lib/services/commentsService';
 import { authService } from '@/lib/services/authService';
 import { FiHeart, FiSend } from 'react-icons/fi';
@@ -18,12 +18,7 @@ export default function CommentsSection({ contentType, contentId }: CommentsSect
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
 
-  useEffect(() => {
-    setIsAuthenticated(authService.isAuthenticated());
-    loadComments();
-  }, [contentId]);
-
-  const loadComments = async () => {
+  const loadComments = useCallback(async () => {
     try {
       setLoading(true);
       const response = await commentsService.getComments(contentType, contentId, page, 20);
@@ -31,10 +26,13 @@ export default function CommentsSection({ contentType, contentId }: CommentsSect
       setHasMore(response.currentPage < response.totalPages);
     } catch (error) {
       console.error('Failed to load comments:', error);
-    } finally {
-      setLoading(false);
     }
-  };
+  }, [contentType, contentId, page]);
+
+  useEffect(() => {
+    setIsAuthenticated(authService.isAuthenticated());
+    loadComments();
+  }, [loadComments]);
 
   const handleSubmitComment = async (e: React.FormEvent) => {
     e.preventDefault();
