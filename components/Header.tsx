@@ -56,7 +56,7 @@ function HeaderContent() {
   return (
     <header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        scrolled ? 'bg-netflix-black/95 backdrop-blur-sm' : 'bg-transparent'
+        scrolled ? 'bg-netflix-black/95 backdrop-blur-sm' : 'bg-black/50 backdrop-blur-sm'
       }`}
     >
       <div className="container mx-auto px-4 lg:px-8">
@@ -91,7 +91,7 @@ function HeaderContent() {
             </Link>
           </nav>
 
-          {/* Search and Menu */}
+          {/* Search, Auth, and Menu */}
           <div className="flex items-center space-x-4">
             {/* Search Button */}
             <button
@@ -102,11 +102,9 @@ function HeaderContent() {
               <FiSearch className="w-5 h-5" />
             </button>
 
-            {/* Auth Buttons / User Menu */}
+            {/* Auth Section */}
             {isAuthenticated ? (
-              <div className="hidden md:flex items-center gap-3">
-                <UserMenu />
-              </div>
+              <UserMenu />
             ) : (
               <div className="hidden md:flex items-center gap-3">
                 <button
@@ -188,9 +186,7 @@ function HeaderContent() {
               </Link>
             </nav>
             <div className="mt-4 pt-4 border-t border-netflix-gray">
-              {isAuthenticated ? (
-                <UserMenu />
-              ) : (
+              {!isAuthenticated && (
                 <div className="flex flex-col space-y-3">
                   <button
                     onClick={() => {
