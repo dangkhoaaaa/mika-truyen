@@ -56,7 +56,7 @@ function HeaderContent() {
   return (
     <header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        scrolled ? 'bg-netflix-black/95 backdrop-blur-sm' : 'bg-black/50 backdrop-blur-sm'
+        scrolled ? 'bg-netflix-black/95 backdrop-blur-sm' : 'bg-black/20 backdrop-blur-sm'
       }`}
     >
       <div className="container mx-auto px-4 lg:px-8">
