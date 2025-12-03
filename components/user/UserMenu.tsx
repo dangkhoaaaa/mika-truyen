@@ -46,8 +46,8 @@ export default function UserMenu() {
       {isOpen && (
         <div className="absolute right-0 top-full mt-2 w-48 bg-[#2f2f2f] rounded-lg shadow-xl overflow-hidden z-50">
           <div className="px-4 py-3 border-b border-gray-700">
-            <p className="text-white font-semibold">{user.fullName || user.username}</p>
-            <p className="text-gray-400 text-sm">{user.email}</p>
+            <p className="text-white font-semibold truncate">{user.fullName || user.username}</p>
+            <p className="text-gray-400 text-sm truncate">{user.email}</p>
           </div>
           
           <Link
