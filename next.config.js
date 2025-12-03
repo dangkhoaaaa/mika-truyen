@@ -2,6 +2,7 @@
 const nextConfig = {
   images: {
     domains: ['img.otruyenapi.com', 'otruyenapi.com', 'sv1.otruyencdn.com', 'phimimg.com'],
+    unoptimized: true,
     remotePatterns: [
       {
         protocol: 'https',
