@@ -39,8 +39,8 @@ export default function RegisterModal({ isOpen, onClose, onSwitchToLogin }: Regi
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm">
-      <div className="bg-[#141414] rounded-lg w-full max-w-md mx-4 p-8 shadow-2xl max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+      <div className="bg-[#141414] rounded-lg w-full max-w-md p-8 shadow-2xl max-h-[90vh] overflow-y-auto relative mt-[500px]">
         <h2 className="text-3xl font-bold mb-6 text-white">Đăng ký</h2>
         
         {error && (

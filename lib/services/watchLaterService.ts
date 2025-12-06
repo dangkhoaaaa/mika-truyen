@@ -2,7 +2,7 @@ import { createAuthApi } from './authService';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
 
-export interface CreateFavoriteDto {
+export interface CreateWatchLaterDto {
   contentType: 'comic' | 'movie';
   contentId: string;
   contentTitle: string;
@@ -10,7 +10,7 @@ export interface CreateFavoriteDto {
   contentSlug?: string;
 }
 
-export interface Favorite {
+export interface WatchLater {
   _id: string;
   userId: string;
   contentType: 'comic' | 'movie';
@@ -23,54 +23,54 @@ export interface Favorite {
   updatedAt: string;
 }
 
-export interface FavoritesResponse {
-  items: Favorite[];
+export interface WatchLaterResponse {
+  items: WatchLater[];
   totalItems: number;
   totalPages: number;
   currentPage: number;
 }
 
 
-export const favoritesService = {
+export const watchLaterService = {
   /**
-   * Add a comic to favorites
+   * Add a content to watch later
    */
-  addFavorite: async (data: CreateFavoriteDto): Promise<Favorite> => {
+  addWatchLater: async (data: CreateWatchLaterDto): Promise<WatchLater> => {
     const authApi = createAuthApi();
-    const response = await authApi.post<Favorite>(`${API_BASE_URL}/favorites`, data);
+    const response = await authApi.post<WatchLater>(`${API_BASE_URL}/watch-later`, data);
     return response.data;
   },
 
   /**
-   * Get user's favorites
+   * Get user's watch later list
    */
-  getFavorites: async (
+  getWatchLater: async (
     contentType?: 'movie' | 'comic',
     page: number = 1,
     limit: number = 20,
-  ): Promise<FavoritesResponse> => {
+  ): Promise<WatchLaterResponse> => {
     const authApi = createAuthApi();
     const params = new URLSearchParams();
     if (contentType) params.append('contentType', contentType);
     params.append('page', page.toString());
     params.append('limit', limit.toString());
 
-    const response = await authApi.get<FavoritesResponse>(
-      `${API_BASE_URL}/favorites?${params.toString()}`,
+    const response = await authApi.get<WatchLaterResponse>(
+      `${API_BASE_URL}/watch-later?${params.toString()}`,
     );
     return response.data;
   },
 
   /**
-   * Check if a comic is in favorites
+   * Check if content is in watch later
    */
-  checkFavorite: async (contentId: string): Promise<boolean> => {
+  checkWatchLater: async (contentId: string): Promise<boolean> => {
     const authApi = createAuthApi();
     try {
-      const response = await authApi.get<{ isFavorite: boolean }>(
-        `${API_BASE_URL}/favorites/check/${contentId}`,
+      const response = await authApi.get<{ isInWatchLater: boolean }>(
+        `${API_BASE_URL}/watch-later/check/${contentId}`,
       );
-      return response.data.isFavorite;
+      return response.data.isInWatchLater;
     } catch (error: any) {
       if (error.response?.status === 404) {
         return false;
@@ -80,18 +80,19 @@ export const favoritesService = {
   },
 
   /**
-   * Remove a comic from favorites
+   * Remove content from watch later
    */
-  removeFavorite: async (contentId: string): Promise<void> => {
+  removeWatchLater: async (contentId: string): Promise<void> => {
     const authApi = createAuthApi();
-    await authApi.delete(`${API_BASE_URL}/favorites/${contentId}`);
+    await authApi.delete(`${API_BASE_URL}/watch-later/${contentId}`);
   },
 
   /**
-   * Clear all favorites
+   * Clear all watch later
    */
-  clearFavorites: async (): Promise<void> => {
+  clearWatchLater: async (): Promise<void> => {
     const authApi = createAuthApi();
-    await authApi.delete(`${API_BASE_URL}/favorites`);
+    await authApi.delete(`${API_BASE_URL}/watch-later`);
   },
 };
+

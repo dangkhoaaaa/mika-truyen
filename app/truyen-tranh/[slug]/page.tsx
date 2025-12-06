@@ -10,6 +10,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import LoadingSpinner from '@/components/LoadingSpinner'
 import FavoriteButton from '@/components/favorites/FavoriteButton'
+import WatchLaterButton from '@/components/watch-later/WatchLaterButton'
 import CommentsSection from '@/components/comments/CommentsSection'
 import RatingSection from '@/components/ratings/RatingSection'
 import { useState, useEffect } from 'react'
@@ -197,6 +198,12 @@ export default function ComicDetailPage() {
                     </>
                   )}
                   <FavoriteButton
+                    contentId={comic._id || slug}
+                    contentTitle={comic.name}
+                    contentThumb={imageUrl}
+                    contentSlug={slug}
+                  />
+                  <WatchLaterButton
                     contentId={comic._id || slug}
                     contentTitle={comic.name}
                     contentThumb={imageUrl}

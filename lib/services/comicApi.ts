@@ -165,6 +165,24 @@ export const comicApi = createApi({
       providesTags: ['Home'],
     }),
 
+    // Get comics - Đang phát hành
+    getComicsDangPhatHanh: builder.query<HomeResponse, { page?: number }>({
+      query: ({ page = 1 }) => `/danh-sach/dang-phat-hanh?page=${page}`,
+      providesTags: ['Home'],
+    }),
+
+    // Get comics - Sắp ra mắt
+    getComicsSapRaMat: builder.query<HomeResponse, { page?: number }>({
+      query: ({ page = 1 }) => `/danh-sach/sap-ra-mat?page=${page}`,
+      providesTags: ['Home'],
+    }),
+
+    // Get comics - Hoàn thành
+    getComicsHoanThanh: builder.query<HomeResponse, { page?: number }>({
+      query: ({ page = 1 }) => `/danh-sach/hoan-thanh?page=${page}`,
+      providesTags: ['Home'],
+    }),
+
     // Get all categories
     getCategories: builder.query<CategoryListResponse, void>({
       query: () => '/the-loai',
@@ -189,6 +207,9 @@ export const {
   useGetComicBySlugQuery,
   useGetComicsByCategoryQuery,
   useGetComicsByListQuery,
+  useGetComicsDangPhatHanhQuery,
+  useGetComicsSapRaMatQuery,
+  useGetComicsHoanThanhQuery,
   useGetCategoriesQuery,
   useSearchComicsQuery,
   useGetChapterDataQuery,

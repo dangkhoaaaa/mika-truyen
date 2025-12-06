@@ -79,16 +79,36 @@ export const removeUserData = (): void => {
 };
 
 /**
- * Create authenticated axios instance
+ * Create authenticated axios instance with 401 interceptor
+ * Export this function so other services can use it
  */
-const createAuthApi = () => {
+export const createAuthApi = () => {
   const token = getAuthToken();
-  return axios.create({
+  const instance = axios.create({
     baseURL: API_BASE_URL,
     headers: {
       Authorization: token ? `Bearer ${token}` : '',
     },
   });
+
+  // Interceptor to handle 401 errors
+  instance.interceptors.response.use(
+    (response) => response,
+    (error) => {
+      if (error.response?.status === 401) {
+        // Clear auth data
+        removeAuthToken();
+        removeUserData();
+        // Redirect to login
+        if (typeof window !== 'undefined') {
+          window.location.href = '/';
+        }
+      }
+      return Promise.reject(error);
+    }
+  );
+
+  return instance;
 };
 
 export const authService = {

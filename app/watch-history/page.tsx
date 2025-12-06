@@ -7,10 +7,13 @@ import Image from 'next/image';
 import { watchHistoryService, WatchHistory } from '@/lib/services/watchHistoryService';
 import { authService } from '@/lib/services/authService';
 import { FiTrash2, FiFilm, FiBook } from 'react-icons/fi';
+import Pagination from '@/components/common/Pagination';
 
 export default function WatchHistoryPage() {
   const [history, setHistory] = useState<WatchHistory[]>([]);
   const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
   const router = useRouter();
 
   useEffect(() => {
@@ -19,18 +22,24 @@ export default function WatchHistoryPage() {
       return;
     }
     loadHistory();
-  }, [router]);
+  }, [router, currentPage]);
 
   const loadHistory = async () => {
     try {
       setLoading(true);
-      const response = await watchHistoryService.getWatchHistory('comic');
+      const response = await watchHistoryService.getWatchHistory('comic', currentPage, 20);
       setHistory(response.items);
+      setTotalPages(response.totalPages);
     } catch (error) {
       console.error('Failed to load watch history:', error);
     } finally {
       setLoading(false);
     }
+  };
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleDelete = async (contentId: string) => {
@@ -96,8 +105,9 @@ export default function WatchHistoryPage() {
             </Link>
           </div>
         ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-            {history.map((item) => (
+          <>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+              {history.map((item) => (
               <div
                 key={item._id}
                 className="group relative bg-[#2f2f2f] rounded-lg overflow-hidden hover:scale-105 transition-transform"
@@ -149,7 +159,15 @@ export default function WatchHistoryPage() {
                 </button>
               </div>
             ))}
-          </div>
+            </div>
+            {totalPages >= 1 && (
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={handlePageChange}
+              />
+            )}
+          </>
         )}
       </div>
     </div>

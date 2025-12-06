@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { authService, getUserData } from '@/lib/services/authService';
-import { FiUser, FiSettings, FiLogOut, FiChevronDown, FiClock, FiHeart } from 'react-icons/fi';
+import { FiUser, FiSettings, FiLogOut, FiChevronDown, FiClock, FiHeart, FiBookmark } from 'react-icons/fi';
 
 export default function UserMenu() {
   const [isOpen, setIsOpen] = useState(false);
@@ -66,6 +66,15 @@ export default function UserMenu() {
           >
             <FiHeart />
             <span>Yêu thích</span>
+          </Link>
+          
+          <Link
+            href="/watch-later"
+            onClick={() => setIsOpen(false)}
+            className="flex items-center gap-3 px-4 py-3 text-white hover:bg-[#3f3f3f] transition"
+          >
+            <FiBookmark />
+            <span>Xem sau</span>
           </Link>
           
           <Link

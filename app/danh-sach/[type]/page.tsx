@@ -8,6 +8,7 @@ import { useParams } from 'next/navigation'
 import { useGetComicsByListQuery } from '@/lib/services/comicApi'
 import ComicCard from '@/components/ComicCard'
 import LoadingSpinner from '@/components/LoadingSpinner'
+import Pagination from '@/components/common/Pagination'
 import { useState } from 'react'
 
 export default function ComicListPage() {
@@ -61,25 +62,14 @@ export default function ComicListPage() {
 
             {/* Pagination */}
             {totalPages > 1 && (
-              <div className="flex justify-center items-center space-x-2">
-                <button
-                  onClick={() => setPage(Math.max(1, page - 1))}
-                  disabled={page === 1}
-                  className="px-4 py-2 bg-netflix-gray/50 rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-netflix-gray transition-colors"
-                >
-                  Trước
-                </button>
-                <span className="px-4 py-2">
-                  Trang {page} / {totalPages}
-                </span>
-                <button
-                  onClick={() => setPage(Math.min(totalPages, page + 1))}
-                  disabled={page === totalPages}
-                  className="px-4 py-2 bg-netflix-gray/50 rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-netflix-gray transition-colors"
-                >
-                  Sau
-                </button>
-              </div>
+              <Pagination
+                currentPage={page}
+                totalPages={totalPages}
+                onPageChange={(newPage) => {
+                  setPage(newPage);
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }}
+              />
             )}
           </>
         )}

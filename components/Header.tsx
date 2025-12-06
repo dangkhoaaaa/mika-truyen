@@ -84,6 +84,24 @@ function HeaderContent() {
               Truyện Mới
             </Link>
             <Link
+              href="/danh-sach/dang-phat-hanh"
+              className="text-sm font-medium hover:text-netflix-red transition-colors"
+            >
+              Đang Phát Hành
+            </Link>
+            <Link
+              href="/danh-sach/sap-ra-mat"
+              className="text-sm font-medium hover:text-netflix-red transition-colors"
+            >
+              Sắp Ra Mắt
+            </Link>
+            <Link
+              href="/danh-sach/hoan-thanh"
+              className="text-sm font-medium hover:text-netflix-red transition-colors"
+            >
+              Hoàn Thành
+            </Link>
+            <Link
               href="/the-loai"
               className="text-sm font-medium hover:text-netflix-red transition-colors"
             >
@@ -176,6 +194,27 @@ function HeaderContent() {
                 className="text-sm font-medium hover:text-netflix-red transition-colors"
               >
                 Truyện Mới
+              </Link>
+              <Link
+                href="/danh-sach/dang-phat-hanh"
+                onClick={() => dispatch(toggleMenu())}
+                className="text-sm font-medium hover:text-netflix-red transition-colors"
+              >
+                Đang Phát Hành
+              </Link>
+              <Link
+                href="/danh-sach/sap-ra-mat"
+                onClick={() => dispatch(toggleMenu())}
+                className="text-sm font-medium hover:text-netflix-red transition-colors"
+              >
+                Sắp Ra Mắt
+              </Link>
+              <Link
+                href="/danh-sach/hoan-thanh"
+                onClick={() => dispatch(toggleMenu())}
+                className="text-sm font-medium hover:text-netflix-red transition-colors"
+              >
+                Hoàn Thành
               </Link>
               <Link
                 href="/the-loai"
