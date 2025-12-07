@@ -6,13 +6,17 @@ export interface CreateWatchHistoryDto {
   contentType: 'movie' | 'comic';
   contentId: string;
   contentTitle: string;
+  contentSlug?: string;
   contentThumb?: string;
   episodeId?: string;
   episodeName?: string;
+  episodeNumber?: number;
   chapterId?: string;
   chapterName?: string;
-  watchTime?: number;
+  chapterNumber?: number;
+  duration?: number;
   totalDuration?: number;
+  progress?: number;
 }
 
 export interface WatchHistory {

@@ -186,7 +186,6 @@ export default function ComicDetailPage() {
                                   contentId: comic._id || slug,
                                   contentTitle: comic.name,
                                   contentThumb: imageUrl,
-                                  contentSlug: slug,
                                   chapterId: firstChapter.chapter_api_data,
                                   chapterName: firstChapter.chapter_name,
                                   chapterNumber: 1,
@@ -216,10 +215,9 @@ export default function ComicDetailPage() {
                                   contentId: comic._id || slug,
                                   contentTitle: comic.name,
                                   contentThumb: imageUrl,
-                                  contentSlug: slug,
                                   chapterId: latestChapter.chapter_api_data,
                                   chapterName: latestChapter.chapter_name,
-                                  chapterNumber: latestChapter.chapter_name.split(' ')[1],
+                                  chapterNumber: Number(latestChapter.chapter_name.split(' ')[1]),
                                   progress: 0,
                                 });
                               } catch (error) {
@@ -328,7 +326,6 @@ export default function ComicDetailPage() {
                             contentId: comic._id || slug,
                             contentTitle: comic.name,
                             contentThumb: imageUrl,
-                            contentSlug: slug,
                             chapterId: chapter.chapter_api_data,
                             chapterName: chapter.chapter_name,
                             chapterNumber: Number(chapter.chapter_name.split(' ')[1]),
