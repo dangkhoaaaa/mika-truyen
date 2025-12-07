@@ -23,6 +23,26 @@ export default function ComicDetailPage() {
   const router = useRouter()
   const { data, isLoading, error } = useGetComicBySlugQuery(slug)
   const [selectedServer, setSelectedServer] = useState(0)
+  const [watchHistory, setWatchHistory] = useState<any>(null)
+
+  useEffect(() => {
+    const fetchWatchHistory = async () => {
+      if (authService.isAuthenticated() && data?.data?.item?._id) {
+        try {
+          const history = await watchHistoryService.getWatchHistoryByContentId(data.data.item._id);
+          if (history) {
+            setWatchHistory(history);
+          }
+        } catch (error) {
+          if ((error as any)?.response?.status !== 404) {
+            console.error('Failed to fetch watch history:', error);
+          }
+        }
+      }
+    };
+
+    fetchWatchHistory();
+  }, [data]);
 
   if (isLoading) {
     return <LoadingSpinner />
@@ -139,6 +159,20 @@ export default function ComicDetailPage() {
                 )}
 
                 <div className="mt-6 flex flex-wrap gap-4 items-center">
+                  {watchHistory && (
+                    <button
+                      onClick={() => {
+                        router.push(
+                          `/chapter?url=${encodeURIComponent(watchHistory.chapterId)}&comic=${slug}`
+                        )
+                      }}
+                      className="inline-flex items-center px-6 py-3 bg-yellow-500 hover:bg-yellow-600 text-white font-semibold rounded-lg transition-colors"
+                    >
+                      Đọc Tiếp
+                      {watchHistory.chapterName && ` - ${watchHistory.chapterName}`}
+                    </button>
+                  )}
+
                   {(firstChapter || latestChapter) && (
                     <>
                       {firstChapter && (
@@ -152,8 +186,11 @@ export default function ComicDetailPage() {
                                   contentId: comic._id || slug,
                                   contentTitle: comic.name,
                                   contentThumb: imageUrl,
+                                  contentSlug: slug,
                                   chapterId: firstChapter.chapter_api_data,
                                   chapterName: firstChapter.chapter_name,
+                                  chapterNumber: 1,
+                                  progress: 0,
                                 });
                               } catch (error) {
                                 console.error('Failed to save watch history:', error);
@@ -179,8 +216,11 @@ export default function ComicDetailPage() {
                                   contentId: comic._id || slug,
                                   contentTitle: comic.name,
                                   contentThumb: imageUrl,
+                                  contentSlug: slug,
                                   chapterId: latestChapter.chapter_api_data,
                                   chapterName: latestChapter.chapter_name,
+                                  chapterNumber: latestChapter.chapter_name.split(' ')[1],
+                                  progress: 0,
                                 });
                               } catch (error) {
                                 console.error('Failed to save watch history:', error);
@@ -288,8 +328,11 @@ export default function ComicDetailPage() {
                             contentId: comic._id || slug,
                             contentTitle: comic.name,
                             contentThumb: imageUrl,
+                            contentSlug: slug,
                             chapterId: chapter.chapter_api_data,
                             chapterName: chapter.chapter_name,
+                            chapterNumber: Number(chapter.chapter_name.split(' ')[1]),
+                            progress: 0,
                           });
                         } catch (error) {
                           console.error('Failed to save watch history:', error);
