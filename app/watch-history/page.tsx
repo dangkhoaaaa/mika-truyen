@@ -112,7 +112,7 @@ export default function WatchHistoryPage() {
                 key={item._id}
                 className="group relative bg-[#2f2f2f] rounded-lg overflow-hidden hover:scale-105 transition-transform"
               >
-                <Link href={`/${item.contentType === 'movie' ? 'phim' : 'truyen-tranh'}/${item.contentId}`}>
+                <Link href={`/${item.contentType === 'movie' ? 'phim' : 'truyen-tranh'}/${item.contentSlug || item.contentId}`}>
                   <div className="aspect-[2/3] relative bg-[#1a1a1a]">
                     {item.contentThumb ? (
                       <Image
@@ -149,6 +149,20 @@ export default function WatchHistoryPage() {
                   <p className="text-gray-500 text-xs">
                     {new Date(item.lastWatchedAt).toLocaleDateString('vi-VN')}
                   </p>
+                  <p className="text-xs text-gray-300">
+                    Chap {item.contentTotalChapters}
+                  </p>
+                  {item.contentStatus && (
+                    <span
+                      className={`inline-block mt-1 px-2 py-0.5 text-xs rounded ${
+                        item.contentStatus === 'ongoing'
+                          ? 'bg-green-600'
+                          : 'bg-blue-600'
+                      }`}
+                    >
+                      {item.contentStatus === 'ongoing' ? 'Đang ra' : 'Hoàn thành'}
+                    </span>
+                  )}
                 </div>
 
                 <button

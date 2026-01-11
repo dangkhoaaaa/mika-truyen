@@ -186,6 +186,9 @@ export default function ComicDetailPage() {
                                   contentId: comic._id || slug,
                                   contentTitle: comic.name,
                                   contentThumb: imageUrl,
+                                  contentSlug: slug,
+                                  contentStatus: comic.status,
+                                  contentTotalChapters: activeServer.server_data.length,
                                   chapterId: firstChapter.chapter_api_data,
                                   chapterName: firstChapter.chapter_name,
                                   chapterNumber: 1,
@@ -215,6 +218,9 @@ export default function ComicDetailPage() {
                                   contentId: comic._id || slug,
                                   contentTitle: comic.name,
                                   contentThumb: imageUrl,
+                                  contentSlug: slug,
+                                  contentStatus: comic.status,
+                                  contentTotalChapters: activeServer.server_data.length,
                                   chapterId: latestChapter.chapter_api_data,
                                   chapterName: latestChapter.chapter_name,
                                   chapterNumber: Number(latestChapter.chapter_name.split(' ')[1]),
@@ -240,12 +246,16 @@ export default function ComicDetailPage() {
                     contentTitle={comic.name}
                     contentThumb={imageUrl}
                     contentSlug={slug}
+                    contentStatus={comic.status}
+                    contentTotalChapters={activeServer.server_data.length}
                   />
                   <WatchLaterButton
                     contentId={comic._id || slug}
                     contentTitle={comic.name}
                     contentThumb={imageUrl}
                     contentSlug={slug}
+                    contentStatus={comic.status}
+                    contentTotalChapters={activeServer.server_data.length}
                   />
                 </div>
               </div>
@@ -326,6 +336,9 @@ export default function ComicDetailPage() {
                             contentId: comic._id || slug,
                             contentTitle: comic.name,
                             contentThumb: imageUrl,
+                            contentSlug: slug,
+                            contentStatus: comic.status,
+                            contentTotalChapters: activeServer.server_data.length,
                             chapterId: chapter.chapter_api_data,
                             chapterName: chapter.chapter_name,
                             chapterNumber: Number(chapter.chapter_name.split(' ')[1]),

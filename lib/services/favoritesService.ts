@@ -8,6 +8,8 @@ export interface CreateFavoriteDto {
   contentTitle: string;
   contentThumb?: string;
   contentSlug?: string;
+  contentStatus?: string;
+  contentTotalChapters?: number;
 }
 
 export interface Favorite {
@@ -21,6 +23,8 @@ export interface Favorite {
   addedAt: string;
   createdAt: string;
   updatedAt: string;
+  contentStatus: string;
+  contentTotalChapters: number;
 }
 
 export interface FavoritesResponse {
@@ -38,6 +42,18 @@ export const favoritesService = {
   addFavorite: async (data: CreateFavoriteDto): Promise<Favorite> => {
     const authApi = createAuthApi();
     const response = await authApi.post<Favorite>(`${API_BASE_URL}/favorites`, data);
+    return response.data;
+  },
+
+  /**
+   * Update the contentStatus of a favorite item
+   */
+  updateFavoriteContentStatus: async (contentId: string, contentStatus: string): Promise<Favorite> => {
+    const authApi = createAuthApi();
+    const response = await authApi.patch<Favorite>(
+      `${API_BASE_URL}/favorites/${contentId}/status`,
+      { contentStatus },
+    );
     return response.data;
   },
 

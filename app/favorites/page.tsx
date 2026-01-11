@@ -115,7 +115,21 @@ export default function FavoritesPage() {
                   <h3 className="text-white text-sm font-semibold mb-1 line-clamp-2">
                     {item.contentTitle}
                   </h3>
-                  <p className="text-gray-500 text-xs">
+                  <p className="text-xs text-gray-300">
+                    Chap {item.contentTotalChapters}
+                  </p>
+                  {item.contentStatus && (
+                    <span
+                      className={`inline-block mt-1 px-2 py-0.5 text-xs rounded ${
+                        item.contentStatus === 'ongoing'
+                          ? 'bg-green-600'
+                          : 'bg-blue-600'
+                      }`}
+                    >
+                      {item.contentStatus === 'ongoing' ? 'Đang ra' : 'Hoàn thành'}
+                    </span>
+                  )}
+                  <p className="text-gray-500 text-xs mt-1">
                     {new Date(item.addedAt).toLocaleDateString('vi-VN')}
                   </p>
                 </div>

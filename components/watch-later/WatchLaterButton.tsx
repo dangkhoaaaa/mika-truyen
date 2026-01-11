@@ -10,6 +10,8 @@ interface WatchLaterButtonProps {
   contentTitle: string;
   contentThumb?: string;
   contentSlug?: string;
+  contentStatus?: string;
+  contentTotalChapters?: number;
 }
 
 export default function WatchLaterButton({
@@ -17,6 +19,8 @@ export default function WatchLaterButton({
   contentTitle,
   contentThumb,
   contentSlug,
+  contentStatus = '',
+  contentTotalChapters = 0,
 }: WatchLaterButtonProps) {
   const [isInWatchLater, setIsInWatchLater] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -56,6 +60,8 @@ export default function WatchLaterButton({
           contentTitle,
           contentThumb,
           contentSlug,
+          contentStatus,
+          contentTotalChapters,
         });
         setIsInWatchLater(true);
       }

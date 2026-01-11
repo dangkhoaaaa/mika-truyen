@@ -10,6 +10,8 @@ interface FavoriteButtonProps {
   contentTitle: string;
   contentThumb?: string;
   contentSlug?: string;
+  contentStatus?: string;
+  contentTotalChapters?: number;
 }
 
 export default function FavoriteButton({
@@ -17,6 +19,8 @@ export default function FavoriteButton({
   contentTitle,
   contentThumb,
   contentSlug,
+  contentStatus,
+  contentTotalChapters,
 }: FavoriteButtonProps) {
   const [isFavorite, setIsFavorite] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -56,6 +60,8 @@ export default function FavoriteButton({
           contentTitle,
           contentThumb,
           contentSlug,
+          contentStatus,
+          contentTotalChapters,
         });
         setIsFavorite(true);
       }

@@ -8,6 +8,8 @@ export interface CreateWatchLaterDto {
   contentTitle: string;
   contentThumb?: string;
   contentSlug?: string;
+  contentStatus?: string;
+  contentTotalChapters?: number;
 }
 
 export interface WatchLater {
@@ -21,6 +23,8 @@ export interface WatchLater {
   addedAt: string;
   createdAt: string;
   updatedAt: string;
+  contentStatus: string;
+  contentTotalChapters: number;
 }
 
 export interface WatchLaterResponse {
@@ -38,6 +42,18 @@ export const watchLaterService = {
   addWatchLater: async (data: CreateWatchLaterDto): Promise<WatchLater> => {
     const authApi = createAuthApi();
     const response = await authApi.post<WatchLater>(`${API_BASE_URL}/watch-later`, data);
+    return response.data;
+  },
+
+  /**
+   * Update the contentStatus of a watch-later item
+   */
+  updateWatchLaterContentStatus: async (contentId: string, contentStatus: string): Promise<WatchLater> => {
+    const authApi = createAuthApi();
+    const response = await authApi.patch<WatchLater>(
+      `${API_BASE_URL}/watch-later/${contentId}/status`,
+      { contentStatus },
+    );
     return response.data;
   },
 

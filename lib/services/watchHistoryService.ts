@@ -8,6 +8,8 @@ export interface CreateWatchHistoryDto {
   contentTitle: string;
   contentSlug?: string;
   contentThumb?: string;
+  contentStatus?: string;
+  contentTotalChapters?: number;
   episodeId?: string;
   episodeName?: string;
   episodeNumber?: number;
@@ -27,6 +29,8 @@ export interface WatchHistory {
   contentTitle: string;
   contentThumb: string;
   contentSlug?: string;
+  contentStatus?: string;
+  contentTotalChapters?: number;
   episodeId?: string;
   episodeName?: string;
   chapterId?: string;
