@@ -77,9 +77,9 @@ function ChapterReaderContent() {
             contentId: comic._id || comicSlug || '',
             contentTitle: comic.name,
             contentThumb: imageUrl,
-            contentSlug: comicSlug,
+            contentSlug: comicSlug || '',
             contentStatus: comic.status,
-            contentTotalChapters: comic.chapters[0].server_data.length,
+            contentTotalChapters: comic.chapters?.[0]?.server_data?.length ?? 0,
             chapterId: chapterUrl || '',
             chapterName: chapter.chapter_name || currentChapterName || '',
           });
